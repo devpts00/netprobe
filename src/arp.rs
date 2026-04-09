@@ -2,7 +2,7 @@ use std::net::Ipv4Addr;
 use pnet::datalink::Config;
 use pnet::packet::arp::{ArpHardwareTypes, ArpOperations, ArpPacket, MutableArpPacket};
 use pnet::packet::ethernet::{EtherTypes, EthernetPacket, MutableEthernetPacket};
-use pnet::packet::Packet;
+use pnet::packet::{MutablePacket, Packet};
 use pnet::util::MacAddr;
 use tracing::info;
 use crate::error::NetprobeError;
@@ -18,16 +18,15 @@ pub fn request(ip_trg: Ipv4Addr) -> Result<MacAddr, NetprobeError> {
     info!("iface: {}, ip: {}, mac: {:?}", iface.name, ip_snd, mac);
 
     let mut eth_buf = [0u8; 42];
-    let mut eth_snd = MutableEthernetPacket::new(&mut eth_buf[..])
+    let mut eth_snd = MutableEthernetPacket::new(&mut eth_buf)
         .ok_or(NetprobeError::Packet("ethernet", "create"))?;
     eth_snd.set_ethertype(EtherTypes::Arp);
     eth_snd.set_destination(MacAddr::broadcast());
     eth_snd.set_source(mac);
+    info!(">> eth: {:?}", eth_snd);
 
-    let mut arp_buf = [0u8; 28];
-    let mut arp_snd = MutableArpPacket::new(&mut arp_buf[..])
+    let mut arp_snd = MutableArpPacket::new(eth_snd.payload_mut())
         .ok_or(NetprobeError::Packet("arp", "create"))?;
-
     arp_snd.set_hardware_type(ArpHardwareTypes::Ethernet);
     arp_snd.set_hw_addr_len(6);
     arp_snd.set_protocol_type(EtherTypes::Ipv4);
@@ -37,14 +36,7 @@ pub fn request(ip_trg: Ipv4Addr) -> Result<MacAddr, NetprobeError> {
     arp_snd.set_sender_proto_addr(ip_snd);
     arp_snd.set_target_hw_addr(MacAddr::zero());
     arp_snd.set_target_proto_addr(ip_trg);
-
     info!(">> arp: {:?}", arp_snd);
-
-    eth_snd.set_payload(arp_snd.packet());
-
-    info!(">> eth: {:?}", eth_snd);
-
-    let x = pnet::datalink::channel(&iface, Config::default())?;
 
     let (mut snd, mut rcv) = eth_channel(&iface, Config::default())?;
     snd.send_to(eth_snd.packet(), None)
