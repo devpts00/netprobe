@@ -19,14 +19,14 @@ pub fn request(ip_trg: Ipv4Addr) -> Result<MacAddr, NetprobeError> {
 
     let mut eth_buf = [0u8; 42];
     let mut eth_snd = MutableEthernetPacket::new(&mut eth_buf[..])
-        .ok_or(NetprobeError::Unexpected("failed to create ethernet packet"))?;
+        .ok_or(NetprobeError::Packet("ethernet", "create"))?;
     eth_snd.set_ethertype(EtherTypes::Arp);
     eth_snd.set_destination(MacAddr::broadcast());
     eth_snd.set_source(mac);
 
     let mut arp_buf = [0u8; 28];
     let mut arp_snd = MutableArpPacket::new(&mut arp_buf[..])
-        .ok_or(NetprobeError::Unexpected("failed to create arp packet"))?;
+        .ok_or(NetprobeError::Packet("arp", "create"))?;
 
     arp_snd.set_hardware_type(ArpHardwareTypes::Ethernet);
     arp_snd.set_hw_addr_len(6);
@@ -47,18 +47,17 @@ pub fn request(ip_trg: Ipv4Addr) -> Result<MacAddr, NetprobeError> {
     let x = pnet::datalink::channel(&iface, Config::default())?;
 
     let (mut snd, mut rcv) = eth_channel(&iface, Config::default())?;
-
     snd.send_to(eth_snd.packet(), None)
-        .ok_or(NetprobeError::Unexpected("cannot send eth packet"))??;
+        .ok_or(NetprobeError::Packet("ethernet", "send"))??;
 
     let buf = rcv.next()?;
     let eth_rsp = EthernetPacket::new(buf)
-        .ok_or(NetprobeError::Unexpected("failed to read ethernet frame"))?;
+        .ok_or(NetprobeError::Packet("ethernet", "read"))?;
     info!("<< eth: {:?}", eth_rsp);
 
     let buf = eth_rsp.payload();
     let arp_rsp = ArpPacket::new(buf)
-        .ok_or(NetprobeError::Unexpected("failed to read arp packet"))?;
+        .ok_or(NetprobeError::Packet("arp", "read"))?;
     info!("<< arp: {:?}", arp_rsp);
 
     Ok(arp_rsp.get_sender_hw_addr())

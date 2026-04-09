@@ -10,9 +10,10 @@ build-debug:
 build-release:
 	cargo build --release
 
-run-debug: build-debug
+arp: build-debug
 	RUST_LOG=info,netprobe=debug \
 	sudo ./target/debug/netprobe arp --ip 192.168.50.49
 
-run-release: build-release
-	./target/release/netprobe
+ndp: build-debug
+	RUST_LOG=info,netprobe=debug \
+	sudo ./target/debug/netprobe ndp --ip fe80::9209:d0ff:fe32:396f

@@ -7,21 +7,21 @@ mod util;
 mod args;
 mod error;
 mod arp;
+mod ndp;
 
-fn run(cmd: Cmd) {
+fn main() {
+    let _guard = init_tracing();
+    let cmd = Cmd::parse();
     info!("cmd: {:?}", cmd);
     match cmd.proto {
         Proto::Arp { ip: ip_trg } => {
             log(arp::request(ip_trg))
         }
+        Proto::Ndp { ip: ip_trg } => {
+            log(ndp::request(ip_trg))
+        }
         Proto::Dhcp { .. } => {
 
         }
     }
-}
-
-fn main() {
-    let _guard = init_tracing();
-    let cmd = Cmd::parse();
-    run(cmd);
 }

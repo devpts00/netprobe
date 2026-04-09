@@ -5,6 +5,9 @@ pub enum NetprobeError {
     #[error("unexpected: {0}")]
     Unexpected(&'static str),
 
+    #[error("packet: {0}, operation: {1}")]
+    Packet(&'static str, &'static str),
+    
     #[error("io: {0}")]
     Io(#[from] std::io::Error),
 

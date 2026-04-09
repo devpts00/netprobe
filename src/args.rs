@@ -1,4 +1,4 @@
-use std::net::Ipv4Addr;
+use std::net::{Ipv4Addr, Ipv6Addr};
 use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -13,6 +13,10 @@ pub enum Proto {
     Arp {
         #[arg(long)]
         ip: Ipv4Addr,
+    },
+    Ndp {
+        #[arg(long)]
+        ip: Ipv6Addr,
     },
     Dhcp {
 
