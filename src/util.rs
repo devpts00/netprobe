@@ -1,11 +1,9 @@
 use std::error::Error;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
-use faststr::FastStr;
 use pnet::datalink::{Channel, Config, DataLinkReceiver, DataLinkSender, NetworkInterface};
-use pnet::packet::ethernet::{EtherType, EtherTypes};
 use tracing::level_filters::LevelFilter;
-use tracing::{error, info};
+use tracing::{debug, error};
 use tracing_subscriber::fmt::format::FmtSpan;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
@@ -29,20 +27,6 @@ pub fn init_tracing() {
             )
         )
         .init();
-}
-
-#[inline]
-pub fn find_iface(name: FastStr) -> Option<NetworkInterface> {
-    pnet::datalink::interfaces().into_iter()
-        .find(|iface| { iface.name == name })
-}
-
-#[inline]
-pub fn get_proto_type_and_len(ip: IpAddr) -> (EtherType, u8) {
-    match ip {
-        IpAddr::V4(_) => (EtherTypes::Ipv4, 4),
-        IpAddr::V6(_) => (EtherTypes::Ipv6, 16),
-    }
 }
 
 #[inline]
@@ -83,10 +67,25 @@ pub fn eth_channel(iface: &NetworkInterface, cfg: Config) -> Result<(Box<dyn Dat
 }
 
 #[inline]
-pub fn log<T: Debug, E: Error>(result: Result<T, E>) {
+pub fn merge_by_prefix(net: Ipv6Addr, host: Ipv6Addr, prefix: u8) -> Ipv6Addr {
+    let host_msk = (1 << (128 - prefix)) - 1;
+    let net_msk = !host_msk;
+    let host = host.to_bits() & host_msk;
+    let net = net.to_bits() & net_msk;
+    let ip = net | host;
+    Ipv6Addr::from(ip)
+}
+
+#[inline]
+pub fn log<T: Debug + Display, E: Error>(result: Result<T, E>) {
     match result {
-        Ok(value) => info!("result: {:?}", value),
-        Err(err) => error!("error: {}", err)
+        Ok(value) => {
+            debug!("result: {:?}", value);
+            println!("{}", value);
+        },
+        Err(err) => {
+            error!("error: {}", err)
+        }
     }
 }
 

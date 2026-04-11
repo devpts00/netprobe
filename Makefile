@@ -1,3 +1,7 @@
+IPV6_PC="fe80::6e82:4a60:9728:5c8e"
+IPV4_PC="192.168.50.60"
+MAC_PC="34:5a:60:7e:ad:1b"
+
 tree:
 	cargo tree
 
@@ -11,9 +15,10 @@ build-release:
 	cargo build --release
 
 arp: build-debug
-	RUST_LOG=info,netprobe=debug \
-	sudo ./target/debug/netprobe arp --ip 192.168.50.49
+	sudo RUST_LOG=info,netprobe=info ./target/debug/netprobe arp --ip $(IPV4_PC)
 
 ndp: build-debug
-	RUST_LOG=info,netprobe=debug \
-	sudo ./target/debug/netprobe ndp --ip fe80::9209:d0ff:fe32:396f
+	sudo RUST_LOG=info,netprobe=info ./target/debug/netprobe ndp --ip $(IPV6_PC)
+
+
+

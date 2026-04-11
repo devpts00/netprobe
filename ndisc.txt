@@ -1,0 +1,65 @@
+Frame 2115: Packet, 86 bytes on wire (688 bits), 86 bytes captured (688 bits) on interface enp11s0, id 0
+    Section number: 1
+    Interface id: 0 (enp11s0)
+        Interface name: enp11s0
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Apr 11, 2026 15:49:24.862430811 MSK
+    UTC Arrival Time: Apr 11, 2026 12:49:24.862430811 UTC
+    Epoch Arrival Time: 1775911764.862430811
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 7.686772 milliseconds]
+    [Time delta from previous displayed frame: 12.307552305 seconds]
+    [Time since reference or first frame: 4 minutes, 19.051896641 seconds]
+    Frame Number: 2115
+    Frame Length: 86 bytes (688 bits)
+    Capture Length: 86 bytes (688 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ipv6:icmpv6]
+    Character encoding: ASCII (0)
+Ethernet II, Src: CloudNetwork_8b:04:0b (84:9e:56:8b:04:0b), Dst: IPv6mcast_ff:28:5c:8e (33:33:ff:28:5c:8e)
+    Destination: IPv6mcast_ff:28:5c:8e (33:33:ff:28:5c:8e)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...1 .... .... .... .... = IG bit: Group address (multicast/broadcast)
+    Source: CloudNetwork_8b:04:0b (84:9e:56:8b:04:0b)
+        .... ..0. .... .... .... .... = LG bit: Globally unique address (factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv6 (0x86dd)
+    [Stream index: 15]
+Internet Protocol Version 6, Src: fe80::4ae8:a0d7:2e6e:fc5, Dst: ff02::1:ff28:5c8e
+    0110 .... = Version: 6
+    .... 0000 0000 .... .... .... .... .... = Traffic Class: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        .... 0000 00.. .... .... .... .... .... = Differentiated Services Codepoint: Default (0)
+        .... .... ..00 .... .... .... .... .... = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    .... 1011 1000 1101 0110 0110 = Flow Label: 0xb8d66
+    Payload Length: 32
+    Next Header: ICMPv6 (58)
+    Hop Limit: 255
+    Source Address: fe80::4ae8:a0d7:2e6e:fc5
+        [Address Space: Link-Local Unicast]
+        [Special-Purpose Allocation: Link-Local Unicast]
+            [Source: True]
+            [Destination: True]
+            [Forwardable: False]
+            [Globally Reachable: False]
+            [Reserved-by-Protocol: True]
+    Destination Address: ff02::1:ff28:5c8e
+        [Address Space: Multicast]
+        [.... .... 0000 .... = Multicast Flags: 0x0]
+            .... .... 0... .... = Reserved: 0
+            .... .... .0.. .... = Rendezvous Point (RP): False
+            .... .... ..0. .... = Network Prefix: False
+            .... .... ...0 .... = Transient: False
+        [.... .... .... 0010 = Multicast Scope: Link-Local scope (0x2)]
+    [Stream index: 1]
+Internet Control Message Protocol v6
+    Type: Neighbor Solicitation (135)
+    Code: 0
+    Checksum: 0x6a25 [correct]
+    [Checksum Status: Good]
+    Reserved: 00000000
+    Target Address: fe80::6e82:4a60:9728:5c8e
+    ICMPv6 Option (Source link-layer address : 84:9e:56:8b:04:0b)
+        Type: Source link-layer address (1)
+        Length: 1 (8 bytes)
+        Link-layer address: CloudNetwork_8b:04:0b (84:9e:56:8b:04:0b)

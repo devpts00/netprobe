@@ -1,5 +1,5 @@
 use clap::Parser;
-use tracing::info;
+use tracing::debug;
 use crate::args::{Cmd, Proto};
 use crate::util::{init_tracing, log};
 
@@ -12,7 +12,7 @@ mod ndp;
 fn main() {
     let _guard = init_tracing();
     let cmd = Cmd::parse();
-    info!("cmd: {:?}", cmd);
+    debug!("cmd: {:?}", cmd);
     match cmd.proto {
         Proto::Arp { ip: ip_trg } => {
             log(arp::request(ip_trg))

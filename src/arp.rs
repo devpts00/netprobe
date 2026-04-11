@@ -17,14 +17,14 @@ pub fn request(ip_trg: Ipv4Addr) -> Result<MacAddr, NetprobeError> {
 
     info!("iface: {}, ip: {}, mac: {:?}", iface.name, ip_snd, mac);
 
-    let mut eth_buf = [0u8; 42];
-    let mut eth_snd = MutableEthernetPacket::new(&mut eth_buf)
+    let mut buf = [0u8; 42];
+    let mut eth_snd = MutableEthernetPacket::new(&mut buf)
         .ok_or(NetprobeError::Packet("ethernet", "create"))?;
     eth_snd.set_ethertype(EtherTypes::Arp);
     eth_snd.set_destination(MacAddr::broadcast());
     eth_snd.set_source(mac);
     info!(">> eth: {:?}", eth_snd);
-
+    
     let mut arp_snd = MutableArpPacket::new(eth_snd.payload_mut())
         .ok_or(NetprobeError::Packet("arp", "create"))?;
     arp_snd.set_hardware_type(ArpHardwareTypes::Ethernet);
