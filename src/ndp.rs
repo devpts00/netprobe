@@ -6,10 +6,10 @@ use pnet::packet::icmpv6::ndp::{MutableNdpOptionPacket, MutableNeighborSolicitPa
 use pnet::packet::icmpv6::{checksum, Icmpv6Code, Icmpv6Packet, Icmpv6Types};
 use pnet::packet::ip::IpNextHeaderProtocols;
 use pnet::packet::ipv6::{Ipv6Packet, MutableIpv6Packet};
-use pnet::packet::{MutablePacket, Packet};
+use pnet::packet::{MutablePacket, Packet, PacketSize};
 use pnet::util::MacAddr;
 use std::net::Ipv6Addr;
-use tracing::debug;
+use tracing::{debug, info};
 
 const NEIGHBOR_SOLICIT_IPV6: [u8; 16] = [0xFF, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01, 0xFF, 0, 0, 0];
 const NEIGHBOR_SOLICIT_MAC: [u8; 6] = [0x33, 0x33, 0xFF, 0, 0, 0];
@@ -43,27 +43,29 @@ pub fn request(trg_ip: Ipv6Addr) -> Result<MacAddr, NetprobeError> {
     debug!("dst, ip/multicast: {}", dst_ip);
     debug!("trg, ip/unicast: {}", trg_ip);
 
-    let mut buf = [0u8; 86];
+    let mut buf = [0u8; 1500];
     let mut eth_snd = MutableEthernetPacket::new(&mut buf)
         .ok_or(NetprobeError::Packet("ethernet", "create"))?;
     eth_snd.set_ethertype(EtherTypes::Ipv6);
     eth_snd.set_destination(dst_mc);
     eth_snd.set_source(src_mc);
-    debug!(">> eth: {:?}", eth_snd);
+    let eth_snd_size = eth_snd.packet_size();
+    debug!(">> eth, size: {}, data: {:?}", eth_snd_size, eth_snd);
 
-    let mut ipv6_snd = MutableIpv6Packet::new(eth_snd.payload_mut())
+    let mut ip6_snd = MutableIpv6Packet::new(eth_snd.payload_mut())
         .ok_or(NetprobeError::Packet("ethernet", "create"))?;
-    ipv6_snd.set_version(6);
-    ipv6_snd.set_traffic_class(0);
-    ipv6_snd.set_flow_label(0xb8d66);
-    ipv6_snd.set_payload_length(32); // TODO: calculate dynamically
-    ipv6_snd.set_next_header(IpNextHeaderProtocols::Icmpv6);
-    ipv6_snd.set_hop_limit(255);
-    ipv6_snd.set_source(src_ip);
-    ipv6_snd.set_destination(dst_ip);
-    debug!(">> ip6: {:?}", ipv6_snd);
+    ip6_snd.set_version(6);
+    ip6_snd.set_traffic_class(0);
+    ip6_snd.set_flow_label(0xb8d66);
+    ip6_snd.set_payload_length(32); // TODO: calculate dynamically
+    ip6_snd.set_next_header(IpNextHeaderProtocols::Icmpv6);
+    ip6_snd.set_hop_limit(255);
+    ip6_snd.set_source(src_ip);
+    ip6_snd.set_destination(dst_ip);
+    let ip6_snd_size = ip6_snd.packet_size();
+    debug!(">> ip6, size: {}, data: {:?}", ip6_snd_size, ip6_snd);
 
-    let mut ndp_snd = MutableNeighborSolicitPacket::new(ipv6_snd.payload_mut())
+    let mut ndp_snd = MutableNeighborSolicitPacket::new(ip6_snd.payload_mut())
         .ok_or(NetprobeError::Packet("ndp", "create"))?;
     ndp_snd.set_icmpv6_type(Icmpv6Types::NeighborSolicit);
     ndp_snd.set_icmpv6_code(Icmpv6Code(0));
@@ -81,13 +83,10 @@ pub fn request(trg_ip: Ipv6Addr) -> Result<MacAddr, NetprobeError> {
         .ok_or(NetprobeError::Packet("icmpv6", "create"))?;
     let checksum = checksum(&icmpv6_snd, &src_ip, &dst_ip);
     ndp_snd.set_checksum(checksum);
-    debug!(">> ndp: {:?}", ndp_snd);
-
-    //info!("ndp packet size: {}", ndp_snd.packet_size());
-    //info!("neighbor solicit: {:?}", ndp_snd);
+    debug!(">> ndp, size: {}, : {:?}", ndp_snd.packet_size(), ndp_snd);
 
     let (mut snd, mut rcv) = eth_channel(&src_if, Config::default())?;
-    snd.send_to(eth_snd.packet(), None)
+    snd.send_to(&eth_snd.packet()[0..eth_snd_size + ip6_snd_size], None)
         .ok_or(NetprobeError::Packet("ethernet", "send"))??;
 
     loop {
