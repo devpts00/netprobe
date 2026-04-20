@@ -8,6 +8,12 @@ tree:
 clean:
 	cargo clean
 
+nft-apply:
+	sudo nft -f ./nftables.nft 
+
+nft-trace:
+	sudo nft monitor trace 
+
 build-debug:
 	cargo build
 
@@ -20,5 +26,7 @@ arp: build-release
 ndp: build-release
 	sudo RUST_LOG=info,netprobe=info ./target/release/netprobe ndp --ip $(IPV6_PC)
 
+dhcp: build-release
+	sudo RUST_LOG=info,netprobe=info ./target/release/netprobe dhcp --ip $(IPV4_PC)
 
 

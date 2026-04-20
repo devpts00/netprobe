@@ -8,6 +8,7 @@ mod args;
 mod error;
 mod arp;
 mod ndp;
+mod dhcp;
 
 fn main() {
     let _guard = init_tracing();
@@ -20,8 +21,8 @@ fn main() {
         Proto::Ndp { ip: ip_trg } => {
             log(ndp::request(ip_trg))
         }
-        Proto::Dhcp { .. } => {
-
+        Proto::Dhcp { ip: ip_trg } => {
+            log(dhcp::discover(ip_trg))
         }
     }
 }

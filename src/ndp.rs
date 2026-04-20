@@ -9,6 +9,7 @@ use pnet::packet::ipv6::{Ipv6Packet, MutableIpv6Packet};
 use pnet::packet::{MutablePacket, Packet, PacketSize};
 use pnet::util::MacAddr;
 use std::net::Ipv6Addr;
+use pnet::packet::dhcp::MutableDhcpPacket;
 use tracing::{debug, info};
 
 const NEIGHBOR_SOLICIT_IPV6: [u8; 16] = [0xFF, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01, 0xFF, 0, 0, 0];

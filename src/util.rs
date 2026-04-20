@@ -30,6 +30,15 @@ pub fn init_tracing() {
 }
 
 #[inline]
+pub fn ipv4_zero() -> Ipv4Addr {
+    Ipv4Addr::new(0, 0, 0, 0)
+}
+
+pub fn ipv4_all() -> Ipv4Addr {
+    Ipv4Addr::new(255, 255, 255, 255)
+}
+
+#[inline]
 pub fn find_iface_and_ip(ip: IpAddr) -> Option<(NetworkInterface, IpAddr)> {
     pnet::datalink::interfaces().into_iter()
         .filter_map(|iface| {

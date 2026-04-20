@@ -1,0 +1,12 @@
+#!/usr/bin/nft -f
+
+destroy table inet trace
+
+table inet trace {
+    chain trace {
+        type filter hook prerouting priority -310
+        policy accept
+        udp sport 67 udp dport 68 meta nftrace set 1
+        udp sport 68 udp dport 67 meta nftrace set 1
+    }
+}

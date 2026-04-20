@@ -19,6 +19,7 @@ pub enum Proto {
         ip: Ipv6Addr,
     },
     Dhcp {
-
+        #[arg(long)]
+        ip: Ipv4Addr,
     }
 }
