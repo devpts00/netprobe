@@ -1,10 +1,9 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4, UdpSocket};
-use std::thread;
 use byteorder::WriteBytesExt;
 use pnet::packet::dhcp::{DhcpHardwareTypes, DhcpOperations, DhcpPacket, MutableDhcpPacket};
 use pnet::packet::{MutablePacket, PacketSize};
 use socket2::{Domain, Protocol, Type};
-use tracing::{debug, info};
+use tracing::debug;
 use crate::error::NetprobeError;
 use crate::util::{find_iface_and_ipv4, ipv4_all, ipv4_zero};
 
